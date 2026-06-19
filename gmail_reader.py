@@ -2,7 +2,6 @@ import base64
 import sys
 import os.path
 import pandas as pd
-from datetime import datetime as dt
 
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
