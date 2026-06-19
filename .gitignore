@@ -1,0 +1,8 @@
+# Test files
+mc.py
+
+# Credential files
+*.json
+
+# Output csv files
+*.csv
