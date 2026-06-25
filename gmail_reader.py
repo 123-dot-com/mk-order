@@ -3,14 +3,9 @@ import sys
 import os.path
 import pandas as pd
 
-from google.auth.transport.requests import Request
-from google.oauth2.credentials import Credentials
-from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 
-
-SCOPES = ["https://www.googleapis.com/auth/gmail.modify"]
 whitelist=[chr(i) for i in range(97, 123)] + [chr(i) for i in range(65, 91)] + [chr(i) for i in range(48, 58)]
 
 
@@ -65,27 +60,7 @@ def markRead(service, msg_id):
     message = service.users().messages().modify(userId='me', id=msg_id, body=body).execute()
 
 
-def main():
-  creds = None
-  if not os.path.exists('credentials.json'):
-    sys.exit('Kindly create a file named \'Credentials.json\' (or rename the credentials file you downloaded from Google), ensure all your credentials exist, and then try again')
-    
-
-  if os.path.exists("token.json"):
-    creds = Credentials.from_authorized_user_file("token.json", SCOPES)
-  # If there are no (valid) credentials available, let the user log in.
-  if not creds or not creds.valid:
-    if creds and creds.expired and creds.refresh_token:
-      creds.refresh(Request())
-    else:
-      flow = InstalledAppFlow.from_client_secrets_file(
-          "credentials.json", SCOPES
-      )
-      creds = flow.run_local_server(port=0)
-    # Save the credentials for the next run
-    with open("token.json", "w") as token:
-      token.write(creds.to_json())
-
+def main(creds):
   try:
     # Call the Gmail API
     service = build("gmail", "v1", credentials=creds)
@@ -101,21 +76,16 @@ def main():
     for message in messages:
         msg = service.users().messages().get(userId='me', id=message['id']).execute()
         if msg['snippet'].find('noreply@mysimplestore.com') != -1:
-            date = dt.fromtimestamp(int(msg['internalDate'])/1000)
             clean_msg=clean(msg['payload']['parts'][0]['body']['data'], 1)
             clean_msg=clean_msg.encode('utf-8')
             clean_msg=clean(str(base64.b64decode(clean_msg)), 2)
             output = pd.concat([output, extract(clean_msg)], ignore_index=True)
             markRead(service, msg['id'])
 
-        
-    output.to_csv('output.csv')
-      
-
   except HttpError as error:
     print(f"An error occurred: {error}")
-    
+
+  return output
+      
 
 
-if __name__ == "__main__":
-  main()

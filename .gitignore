@@ -6,3 +6,6 @@ mc.py
 
 # Output csv files
 *.csv
+
+# Cache files:
+~/mk-order/__pycache__/
