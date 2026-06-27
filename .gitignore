@@ -8,4 +8,4 @@ mc.py
 *.csv
 
 # Cache files:
-~/mk-order/__pycache__/
+*.pyc
