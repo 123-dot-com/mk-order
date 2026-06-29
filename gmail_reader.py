@@ -1,6 +1,4 @@
 import base64
-import sys
-import os.path
 import pandas as pd
 
 from googleapiclient.discovery import build
