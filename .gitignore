@@ -1,5 +1,6 @@
-# Test files
+# Internal development files
 mc.py
+todo.md
 
 # Credential files
 *.json
