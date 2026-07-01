@@ -3,7 +3,7 @@ A tool to automate the generation of the daily order sheet.
 This is done by pulling data from Millkraft's Gmail inbox, and from the Google Form responses.
 
 ## Quickstarting:
-Before starting this program, make sure you have your credentials (client secrets) from your [Google Cloud Console](console.cloud.google.com). After that is done, you may follow these steps:
+Before starting this program, make sure you have python3 installed, and have your credentials (client secrets) from your [Google Cloud Console](console.cloud.google.com). After that is done, you may follow these steps:
 
 1. Navigate to the directory in which this repo was cloned
 
@@ -23,9 +23,14 @@ https://docs.google.com/spreadsheets/d/<SPREADSHEET-ID>/edit?gid=0#gid=0
 ```
 spreadsheet_id = <SPREADSHEET-ID>
 ```
-5. Now, run the 'main.py' file
+5. Install the required dependencies using pip
+
+```
+pip install -r dependencies.txt
+```
+6. Now, run the 'main.py' file
 
 ```
 python main.py
 ```
-6. If it's your first time running it, you will be redirected to a Google login page, where it will ask for your authorisation to permit the program to access your Google data. This will only happen the first time, as long as the 'token.json' file remains, and your client secrets do not expire.
+7. If it's your first time running it, you will be redirected to a Google login page, where it will ask for your authorisation to permit the program to access your Google data. This will only happen the first time, as long as the 'token.json' file remains, and your client secrets do not expire.
