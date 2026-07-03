@@ -37,19 +37,22 @@ def extract(msg):
     instructions = clean_msg[clean_msg.find('Special Instructions')+22: clean_msg.find('-')]
     summary = msg[msg.find('Order Summary'):msg.find('Subtotal')-1]
 
-    items = pd.DataFrame(columns=['Item', 'Weight', 'Texture', 'SKU', 'Price including GST'])
+    item = ""
+    weight = ""
+    texture = ""
+    sku = ""
+    price = ""
     while summary.find('[image:') != -1:
-        item = summary[summary.find('<https://millkraft.com/shop/ols/products/')+41: summary.find('>')]
-        weight = summary[summary.find('Kgs: ')+5: summary.find('Texture: ')-1]
-        texture = summary[summary.find('Texture: ')+9: summary.find('SKU: ')-1]
-        sku = summary[summary.find('SKU: ')+5: summary.find('*')-1]
-        price = summary[summary.find('\\xe2\\x82\\xb9')+12: summary.find('incl.')-3]
-        row = {'Item': item, 'Weight': weight, 'Texture': texture, 'SKU': sku, 'Price including GST': price}
-        items.loc[len(items)] = row
+        item += summary[summary.find('<https://millkraft.com/shop/ols/products/')+41: summary.find('>')] + '\n'
+        weight += summary[summary.find('Kgs: ')+5: summary.find('Texture: ')-1] + '\n'
+        texture += summary[summary.find('Texture: ')+9: summary.find('SKU: ')-1] + '\n'
+        sku += summary[summary.find('SKU: ')+5: summary.find('*')-1] + '\n'
+        price += summary[summary.find('\\xe2\\x82\\xb9')+12: summary.find('incl.')-3] + '\n'
         summary = summary[summary.find('incl. 5% GST')+12:]
-
     final = {'Order': [order], 'Date': [date], 'Address': [address]}
     final = pd.DataFrame.from_dict(final)
+    items = pd.DataFrame(columns=['Item', 'Weight', 'Texture', 'SKU', 'Price including GST'])
+    items.loc[len(items)] = [item, weight, texture, sku, price]
     final = pd.concat([final,items], axis=1)
     return final
 
@@ -59,31 +62,31 @@ def markRead(service, msg_id):
 
 
 def main(creds):
-  try:
-    # Call the Gmail API
-    service = build("gmail", "v1", credentials=creds)
-    results = service.users().messages().list(userId="me", labelIds=["UNREAD"]).execute()
-    messages = results.get("messages", [])
+    try:
+        # Call the Gmail API
+        service = build("gmail", "v1", credentials=creds)
+        results = service.users().messages().list(userId="me", labelIds=["UNREAD"]).execute()
+        messages = results.get("messages", [])
 
-    if not messages:
-      print("No messages found.")
-      return
+        if not messages:
+            print("No messages found.")
+            return
 
-    count=0
-    output = pd.DataFrame(columns=['Order', 'Date', 'Address', 'Item', 'Weight', 'Texture', 'SKU', 'Price including GST'])
-    for message in messages:
-        msg = service.users().messages().get(userId='me', id=message['id']).execute()
-        if msg['snippet'].find('noreply@mysimplestore.com') != -1:
-            clean_msg=clean(msg['payload']['parts'][0]['body']['data'], 1)
-            clean_msg=clean_msg.encode('utf-8')
-            clean_msg=clean(str(base64.b64decode(clean_msg)), 2)
-            output = pd.concat([output, extract(clean_msg)], ignore_index=True)
-            markRead(service, msg['id'])
+        count=0
+        output = pd.DataFrame(columns=['Order', 'Date', 'Address', 'Item', 'Weight', 'Texture', 'SKU', 'Price including GST'])
+        for message in messages:
+            msg = service.users().messages().get(userId='me', id=message['id']).execute()
+            if msg['snippet'].find('noreply@mysimplestore.com') != -1:
+                clean_msg=clean(msg['payload']['parts'][0]['body']['data'], 1)
+                clean_msg=clean_msg.encode('utf-8')
+                clean_msg=clean(str(base64.b64decode(clean_msg)), 2)
+                output = pd.concat([output, extract(clean_msg)], ignore_index=True)
+                markRead(service, msg['id'])
 
-  except HttpError as error:
-    print(f"An error occurred: {error}")
+    except HttpError as error:
+        print(f"An error occurred: {error}")
 
-  return output
-      
+    output.to_csv('output.csv')
+    return 'a'
 
 
