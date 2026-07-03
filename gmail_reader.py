@@ -86,7 +86,4 @@ def main(creds):
     except HttpError as error:
         print(f"An error occurred: {error}")
 
-    output.to_csv('output.csv')
-    return 'a'
-
-
+    return order
