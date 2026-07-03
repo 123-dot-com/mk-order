@@ -21,7 +21,7 @@ https://docs.google.com/spreadsheets/d/<SPREADSHEET-ID>/edit?gid=0#gid=0
 4. Open the file named sheet_writer.py in a text editor, and edit the variable named spreadsheet_id and save the file
 
 ```
-spreadsheet_id = <SPREADSHEET-ID>
+SPREADSHEET_ID = <SPREADSHEET-ID>
 ```
 5. Install the required dependencies using pip
 
